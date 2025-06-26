@@ -51,6 +51,7 @@ def newFace():
         cv2.imwrite(path,faceCheckRect)
 
 while True:
+    #Needed in order to keep updating the 'face' if we ever change the image of comparison
     face = "static/reference_image.png"
     ret,frame = cap.read()
     flipped_frame = cv2.flip(frame, 1)
@@ -87,6 +88,7 @@ while True:
         except Exception as e:
             print("Error: ", e)
 
+    #This will store the key that is pressed
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord('n'):
