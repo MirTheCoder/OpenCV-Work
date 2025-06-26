@@ -19,45 +19,54 @@ while True:
     #Here we are getting the frame or actually image being sent by the webcam
     #And then we are also receiving if whether the frame capture was successful
     ret, frame = cap.read()
-
     #This will flip the frame presented in teh window across the Y axis
     flipped_frame = cv2.flip(frame,1)
     #This will create a blank canvas that the covers the area of teh webcam window
     image = np.zeros(frame.shape, np.uint8)
+    #We want to use this to draw a line on our video image
     #Resizes the frames size
-    smaller_frame = cv2.resize(frame,(0,0), fx=0.5, fy=0.5)
+    smaller_frame = cv2.resize(flipped_frame,(0,0), fx=0.5, fy=0.5)
+    #We use the first line to get a black and white version of our video capture
+    gray = cv2.cvtColor(smaller_frame, cv2.COLOR_BGR2GRAY)
+    #We use this line to get that same color scheme in BGR so that our image will have the required height, width, and channel
+    gray_bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    #Converts our image to a three-dimensional image
+    hsv = cv2.cvtColor(smaller_frame, cv2.COLOR_BGR2HSV)
     #This takes a section of our video webcam window and paste the smaller frame into it
 
-    if cv2.waitKey(1) == ord('d'):
-        letter = 'd'
+    key = cv2.waitKey(1) & 0xFF
 
-    if cv2.waitKey(1) == ord('w'):
+    if key == ord('d'):
+        letter = 'd'
+    elif key == ord('w'):
         letter = 'w'
+    elif key == ord('q'):
+        break
 
     if letter == 'd':
         #This paste our frame in the top left corner of our webcam window
+        #img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
         image[:height//2, :width//2] = smaller_frame
         # This paste our frame in the bottom left corner of our webcam window
-        image[height // 2:, :width // 2] = cv2.rotate(smaller_frame, cv2.ROTATE_180)
+        image[height // 2:, :width // 2] = cv2.rotate(hsv, cv2.ROTATE_180)
         # This paste our frame in the top right corner of our webcam window
-        image[:height // 2, width // 2:] = smaller_frame
+        image[:height // 2, width // 2:] = cv2.rotate(gray_bgr, cv2.ROTATE_180)
         # This paste our frame in the bottom right corner of our webcam window
-        image[height // 2:, width // 2:] = cv2.rotate(smaller_frame, cv2.ROTATE_180)
+        image[height // 2:, width // 2:] = smaller_frame
     if letter == 'w':
+        #img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
         #This paste our frame in the top left corner of our webcam window
         image[:height//2, :width//2] = smaller_frame
         # This paste our frame in the bottom left corner of our webcam window
-        image[height // 2:, :width // 2] = smaller_frame
+        image[height // 2:, :width // 2] = hsv
         # This paste our frame in the top right corner of our webcam window
-        image[:height // 2, width // 2:] = smaller_frame
+        image[:height // 2, width // 2:] = gray_bgr
         # This paste our frame in the bottom right corner of our webcam window
         image[height // 2:, width // 2:] = smaller_frame
 
     cv2.imshow('frame', image)
     #This is a timer in which our cv2 window will wait according to the time we tell it, and if q is pressed within that
     #time frame then it will not take the picture
-    if cv2.waitKey(1) == ord('q'):
-        break
 
 #This will release the hold of your webcam
 cap.release()
