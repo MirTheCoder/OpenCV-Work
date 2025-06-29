@@ -31,6 +31,26 @@ while True:
     gray_bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
     #Converts our image to a three-dimensional image
     hsv = cv2.cvtColor(smaller_frame, cv2.COLOR_BGR2HSV)
+
+    gray_blur = cv2.medianBlur(gray, 5)
+
+    # This will be used to capture the images edges and practically turns it into a binary image by creating a threshold
+    # for the pixels values based off the average of the neighboring values, and if a value goes beyond the threshold
+    # then it will be turned white, else it will become black
+    edges = cv2.adaptiveThreshold(gray_blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, blockSize=9, C=9)
+
+    # We use this to smooth the image and make it cleaner while keeping the image sharp, it tells the computer
+    # how many colors can be blurred together and how far the image should look for colors to blur
+
+    color = cv2.bilateralFilter(smaller_frame, d=12, sigmaColor=300, sigmaSpace=300)
+
+
+    gray_color = cv2.bilateralFilter(gray, d=9, sigmaColor=250, sigmaSpace=250)
+
+    # This will blend the edges creation we made with the smoothed out image to create a cartoon like effect
+    cartoon = cv2.bitwise_and(color, color, mask=edges)
+    cartoon2 = cv2.bitwise_and(gray_color, gray_color, mask=edges)
+
     #This takes a section of our video webcam window and paste the smaller frame into it
 
     key = cv2.waitKey(1) & 0xFF
@@ -51,7 +71,7 @@ while True:
         # This paste our frame in the top right corner of our webcam window
         image[:height // 2, width // 2:] = cv2.rotate(gray_bgr, cv2.ROTATE_180)
         # This paste our frame in the bottom right corner of our webcam window
-        image[height // 2:, width // 2:] = smaller_frame
+        image[height // 2:, width // 2:] = cartoon
     if letter == 'w':
         #img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
         #This paste our frame in the top left corner of our webcam window
@@ -61,7 +81,7 @@ while True:
         # This paste our frame in the top right corner of our webcam window
         image[:height // 2, width // 2:] = gray_bgr
         # This paste our frame in the bottom right corner of our webcam window
-        image[height // 2:, width // 2:] = smaller_frame
+        image[height // 2:, width // 2:] = cartoon
 
     cv2.imshow('frame', image)
     #This is a timer in which our cv2 window will wait according to the time we tell it, and if q is pressed within that

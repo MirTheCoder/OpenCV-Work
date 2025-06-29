@@ -1,9 +1,6 @@
 import numpy as np
 import cv2
-from deepface import DeepFace
 import os
-
-
 
 
 # Make sure to import Microsoft C++ Redistributable to use tensorflow (an application needed to use DeepFace)
@@ -21,7 +18,7 @@ smile_cascade = cv2.CascadeClassifier('video_recog/haarcascade_smile.xml')
 #Sets the font for any text that we write
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-img = cv2.imread("static/Miracle's headshot.jpeg")
+
 
 #Used to capture the frames or images from a video footage or your devices camera
 cap = cv2.VideoCapture(0)
@@ -29,6 +26,19 @@ cap = cv2.VideoCapture(0)
 cameraBoxHeight = int(cap.get(4))
 #This gets the width of the videocam display box
 cameraBoxWidth = int(cap.get(3))
+
+img = cv2.imread("static/clark_2.jpg")
+img = cv2.resize(img,(cameraBoxWidth, cameraBoxHeight))
+gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+superman = face_cascade.detectMultiScale(gray_img, 1.3, 5)
+sx,sy,sw,sh = superman[0]
+sx = int(sx)
+sy = int(sy)
+sw = int(sw)
+sh = int(sh)
+
+supermanFace = img[sy - 30: sy + sh + 30, sx - 30:sx + sw + 30]
+
 
 letter = ''
 
@@ -50,8 +60,6 @@ def newFace():
         cv2.imwrite(path,faceCheckRect)
 
 while True:
-    #Needed in order to keep updating the 'face' if we ever change the image of comparison
-    face = "static/reference_image.png"
     ret,frame = cap.read()
     flipped_frame = cv2.flip(frame, 1)
     #You must convert the image to gray scale before you apply the facial detection
@@ -71,21 +79,10 @@ while True:
 
     for (x, y, w, h) in faces:
         faceCheck = cv2.rectangle(flipped_frame, (x - 30, y - 30), (x + w + 30, y + h + 30), (255, 0, 0), 2)
-        faceFrame = flipped_frame[y-30: y + h + 30, x-30:x + w + 30 ]
+        supermanFace = cv2.resize(supermanFace, (x+x+w,y+y+w))
+        flipped_frame[y-30: y + h + 30, x-30:x + w + 30 ] = supermanFace
         # retrieves the area of the box encapsulating the recognized face
         # Y value goes first before the x value
-        try:
-            #This will allow us to compare the cropped face images in the video footage and compare them
-            #enforce_detection allows us to compare faceFrame with face since faceFrame is actually a numpy array
-            match = DeepFace.verify(faceFrame,face, enforce_detection=False)
-            #Since DeepFace returns a dictionary answer with the True or False value being stored in "['verified']", we have
-            #to check and see if the verified value in the dictionary is equal to True
-            if match['verified']:
-                cv2.putText(flipped_frame, 'Welcome Back', (10, cameraBoxHeight - 10), font, 2, (0, 0, 0), 5, cv2.LINE_AA)
-            else:
-                cv2.putText(flipped_frame, 'Do I know you?', (10, cameraBoxHeight - 10), font, 2, (0, 0, 0), 5, cv2.LINE_AA)
-        except Exception as e:
-            print("Error: ", e)
 
     #This will store the key that is pressed
     key = cv2.waitKey(1) & 0xFF
