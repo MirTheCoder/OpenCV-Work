@@ -8,9 +8,11 @@ import cv2
 cap = cv2.VideoCapture(0)
 #This wil get the width of our webcam window box, and the nuber three is the identifier of the width property
 width = int(cap.get(3)) #rememebr to convert to int because by default the value of cap.get() returns a float number
+fourthWidth = width//4
 
 #This wil get the height of our webcam window box, and the nuber three is the identifier of the height property
 height = int(cap.get(4)) #rememebr to convert to int because by default the value of cap.get() returns a float number
+fourthHeight = height//4
 
 
 letter = 'w'
@@ -24,7 +26,7 @@ while True:
     image = np.zeros(frame.shape, np.uint8)
     #We want to use this to draw a line on our video image
     #Resizes the frames size
-    smaller_frame = cv2.resize(flipped_frame,(0,0), fx=0.5, fy=0.5)
+    smaller_frame = cv2.resize(flipped_frame,(fourthWidth,fourthHeight))
     #We use the first line to get a black and white version of our video capture
     gray = cv2.cvtColor(smaller_frame, cv2.COLOR_BGR2GRAY)
     #We use this line to get that same color scheme in BGR so that our image will have the required height, width, and channel
@@ -65,23 +67,58 @@ while True:
     if letter == 'd':
         #This paste our frame in the top left corner of our webcam window
         #img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
-        image[:height//2, :width//2] = smaller_frame
+        image[:fourthHeight, :fourthWidth] = smaller_frame
         # This paste our frame in the bottom left corner of our webcam window
-        image[height // 2:, :width // 2] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[:fourthHeight, fourthWidth:(2*fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
         # This paste our frame in the top right corner of our webcam window
-        image[:height // 2, width // 2:] = cv2.rotate(gray_bgr, cv2.ROTATE_180)
+        image[:fourthHeight, (2*fourthWidth):(3*fourthWidth)] = cv2.rotate(gray_bgr, cv2.ROTATE_180)
+        image[:fourthHeight, (3 * fourthWidth):] = cv2.rotate(gray_bgr, cv2.ROTATE_180)
         # This paste our frame in the bottom right corner of our webcam window
-        image[height // 2:, width // 2:] = cartoon
+        image[fourthHeight:(2*fourthHeight),:fourthWidth] = cartoon
+        # This paste our frame in the bottom left corner of our webcam window
+        image[fourthHeight:(2*fourthHeight), fourthWidth:(2 * fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        # This paste our frame in the bottom left corner of our webcam window
+        image[fourthHeight:(2 * fourthHeight), (2*fourthWidth):(3*fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[fourthHeight:(2 * fourthHeight), (3 * fourthWidth):] = cv2.rotate(hsv, cv2.ROTATE_180)
+        # This paste our frame in the bottom right corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), :fourthWidth] = cartoon
+        # This paste our frame in the bottom left corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), fourthWidth:(2 * fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        # This paste our frame in the bottom left corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), (2 * fourthWidth):(3*fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[(2 * fourthHeight):(3 * fourthHeight), (3 * fourthWidth):] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[(3 * fourthHeight):, :fourthWidth] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[(3 * fourthHeight):, fourthWidth: (2 * fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[(3 * fourthHeight):, (2 * fourthWidth): (3 * fourthWidth)] = cv2.rotate(hsv, cv2.ROTATE_180)
+        image[(3 * fourthHeight):, (3 * fourthWidth):] = cv2.rotate(hsv, cv2.ROTATE_180)
+
     if letter == 'w':
-        #img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
-        #This paste our frame in the top left corner of our webcam window
-        image[:height//2, :width//2] = smaller_frame
+        # This paste our frame in the top left corner of our webcam window
+        # img = cv2.line(smaller_frame, (0, 0), (width // 2, height // 2), (255, 0, 0), 10)
+        image[:fourthHeight, :fourthWidth] = smaller_frame
         # This paste our frame in the bottom left corner of our webcam window
-        image[height // 2:, :width // 2] = hsv
+        image[:fourthHeight, fourthWidth:(2 * fourthWidth)] = hsv
         # This paste our frame in the top right corner of our webcam window
-        image[:height // 2, width // 2:] = gray_bgr
+        image[:fourthHeight, (2 * fourthWidth):(3 * fourthWidth)] = gray_bgr
+        image[:fourthHeight, (3 * fourthWidth):] = gray_bgr
         # This paste our frame in the bottom right corner of our webcam window
-        image[height // 2:, width // 2:] = cartoon
+        image[fourthHeight:(2 * fourthHeight), :fourthWidth] = cartoon
+        # This paste our frame in the bottom left corner of our webcam window
+        image[fourthHeight:(2 * fourthHeight), fourthWidth:(2 * fourthWidth)] = hsv
+        # This paste our frame in the bottom left corner of our webcam window
+        image[fourthHeight:(2 * fourthHeight), (2 * fourthWidth):(3 * fourthWidth)] = hsv
+        image[fourthHeight:(2 * fourthHeight), (3 * fourthWidth):] = hsv
+        # This paste our frame in the bottom right corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), :fourthWidth] = cartoon
+        # This paste our frame in the bottom left corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), fourthWidth:(2 * fourthWidth)] = hsv
+        # This paste our frame in the bottom left corner of our webcam window
+        image[(2 * fourthHeight):(3 * fourthHeight), (2 * fourthWidth):(3 * fourthWidth)] = hsv
+        image[(2 * fourthHeight):(3 * fourthHeight), (3 * fourthWidth):] = hsv
+        image[(3 * fourthHeight):, :fourthWidth] = hsv
+        image[(3 * fourthHeight):, fourthWidth: (2 * fourthWidth)] = hsv
+        image[(3 * fourthHeight):, (2 * fourthWidth): (3 * fourthWidth)] = cartoon
+        image[(3 * fourthHeight):, (3 * fourthWidth):] = hsv
 
     cv2.imshow('frame', image)
     #This is a timer in which our cv2 window will wait according to the time we tell it, and if q is pressed within that
