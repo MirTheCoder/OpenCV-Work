@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import os
 
-
 # Make sure to import Microsoft C++ Redistributable to use tensorflow (an application needed to use DeepFace)
 #Make sure your Python interpreter is not beyond 3.11 or else DeeFace will not work
 
@@ -27,37 +26,30 @@ cameraBoxHeight = int(cap.get(4))
 #This gets the width of the videocam display box
 cameraBoxWidth = int(cap.get(3))
 
-img = cv2.imread("static/clark_2.jpg")
-img = cv2.resize(img,(cameraBoxWidth, cameraBoxHeight))
-gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+hero = cv2.imread("static/clark_2.jpg")
+gray_img = cv2.cvtColor(hero, cv2.COLOR_BGR2GRAY)
 superman = face_cascade.detectMultiScale(gray_img, 1.3, 5)
-sx,sy,sw,sh = superman[0]
-sx = int(sx)
-sy = int(sy)
-sw = int(sw)
-sh = int(sh)
+for(x,y,w,h) in superman:
+    y -= 20
+    h += 30
+    supermanRect = hero[y:y+h, x:x+w]
+    cv2.imwrite("static/superManFace.jpg", supermanRect)
 
-supermanFace = img[sy - 30: sy + sh + 30, sx - 30:sx + sw + 30]
+supermanFace = cv2.imread("static/superManFace.jpg")
 
+hero = cv2.imread("static/wonder_woman.jpg")
+gray_img = cv2.cvtColor(hero, cv2.COLOR_BGR2GRAY)
+wonderWoman = face_cascade.detectMultiScale(gray_img, 1.3, 5)
+for(x,y,w,h) in wonderWoman:
+    y -= 24
+    h += 34
+    superWomanRect = hero[y:y+h, x:x+w]
+    cv2.imwrite("static/wonderWomanFace.jpg", superWomanRect)
 
-letter = ''
+wonderWomanFace = cv2.imread("static/wonderWomanFace.jpg")
 
-faceFrame = img
-face = "static/reference_image.png"
+letter = 'o'
 
-
-#This function will load the users face into our system as the person we are looking for
-def newFace():
-    for (x, y, w, h) in faces:
-        faceRect = cv2.rectangle(flipped_frame, (x - 30, y - 30), (x + w + 30, y + h + 30), (255, 0, 0), 2)
-        faceCheckRect = flipped_frame[y-30: y + h + 30, x-30:x + w + 30 ]
-
-
-
-        letter = ''
-        path = "static/reference_image.png"
-        #We use this to save the cropped image from our video capture to our filepath
-        cv2.imwrite(path,faceCheckRect)
 
 while True:
     ret,frame = cap.read()
@@ -73,29 +65,56 @@ while True:
     #some can be inaccurate
     #(Optional)You also have min and maxsize which can determine how small or big the face has to be for facial detection to
     #send it back to you
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    faces = face_cascade.detectMultiScale(gray, 1.4, 5)
     #the facial recognition method will return the x,y coordinates along with teh width and height of the rectangle
     #encompassing the face
 
-    for (x, y, w, h) in faces:
-        faceCheck = cv2.rectangle(flipped_frame, (x - 30, y - 30), (x + w + 30, y + h + 30), (255, 0, 0), 2)
-        supermanFace = cv2.resize(supermanFace, (x+x+w,y+y+w))
-        flipped_frame[y-30: y + h + 30, x-30:x + w + 30 ] = supermanFace
-        # retrieves the area of the box encapsulating the recognized face
-        # Y value goes first before the x value
+    if letter == 'o':
+        for (x, y, w, h) in faces:
+            y -= 30
+            x -= 30
+            w += 30
+            h += 60
+            faceCheck = cv2.rectangle(flipped_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+
+
+    if letter == "s":
+        for (x, y, w, h) in faces:
+            y -= 30
+            x -= 30
+            w += 30
+            h += 60
+            faceCheck = cv2.rectangle(flipped_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            dimensions = supermanFace.shape
+            superFace = cv2.resize(supermanFace, (w,h))
+            flipped_frame[y: y + h, x:x + w] = superFace
+            # retrieves the area of the box encapsulating the recognized face
+            # Y value goes first before the x value
+
+    if letter == "w":
+        for (x, y, w, h) in faces:
+            y -= 30
+            x -= 30
+            w += 30
+            h += 60
+            faceCheck = cv2.rectangle(flipped_frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            superFace = cv2.resize(wonderWomanFace, (w,h))
+            flipped_frame[y: y + h, x:x + w] = superFace
+            # retrieves the area of the box encapsulating the recognized face
+            # Y value goes first before the x value
 
     #This will store the key that is pressed
     key = cv2.waitKey(1) & 0xFF
-
-    if key == ord('n'):
-        letter = 'n'
-    elif key == ord('w'):
+    if key == ord('s'):
+        letter = "s"
+    elif key == ord("w"):
         letter = 'w'
+    elif key == ord("o"):
+        letter = "o"
     elif key == ord('q'):
         break
 
-    if letter == 'n':
-       newFace()
 
 
 
