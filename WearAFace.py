@@ -65,7 +65,7 @@ while True:
     #some can be inaccurate
     #(Optional)You also have min and maxsize which can determine how small or big the face has to be for facial detection to
     #send it back to you
-    faces = face_cascade.detectMultiScale(gray, 1.4, 5)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
     #the facial recognition method will return the x,y coordinates along with teh width and height of the rectangle
     #encompassing the face
 
