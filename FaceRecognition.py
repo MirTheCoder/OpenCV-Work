@@ -21,7 +21,6 @@ smile_cascade = cv2.CascadeClassifier('video_recog/haarcascade_smile.xml')
 #Sets the font for any text that we write
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-img = cv2.imread("static/Miracle's headshot.jpeg")
 
 #Used to capture the frames or images from a video footage or your devices camera
 cap = cv2.VideoCapture(0)
@@ -32,8 +31,7 @@ cameraBoxWidth = int(cap.get(3))
 
 letter = ''
 
-faceFrame = img
-face = "static/reference_image.png"
+face = cv2.imread("static/Miracle's headshot.jpeg")
 
 
 #This function will load the users face into our system as the person we are looking for
@@ -74,10 +72,16 @@ while True:
         faceFrame = flipped_frame[y-30: y + h + 30, x-30:x + w + 30 ]
         # retrieves the area of the box encapsulating the recognized face
         # Y value goes first before the x value
+
+        #This will save the face to an image file to allow the system to compare it with another image in our files
+        cv2.imwrite("static/reference_image.png",faceFrame)
         try:
+            #Here we are going to load the face we receive from the video capture and the face that we are
+            #going to be comparing it to from our files
+            facial = cv2.imread("static/reference_image.png")
             #This will allow us to compare the cropped face images in the video footage and compare them
             #enforce_detection allows us to compare faceFrame with face since faceFrame is actually a numpy array
-            match = DeepFace.verify(faceFrame,face, enforce_detection=False)
+            match = DeepFace.verify(facial,face, enforce_detection=False)
             #Since DeepFace returns a dictionary answer with the True or False value being stored in "['verified']", we have
             #to check and see if the verified value in the dictionary is equal to True
             if match['verified']:
