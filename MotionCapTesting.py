@@ -27,9 +27,11 @@ while True:
     smaller_frame = cv2.resize(flipped_frame,(fourthWidth,fourthHeight))
     #We use the first line to get a black and white version of our video capture
     gray = cv2.cvtColor(smaller_frame, cv2.COLOR_BGR2GRAY)
-    th, dst = cv2.threshold(gray, 200, 255,
+    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    flipped_frame = cv2.GaussianBlur(gray, (21, 21), 0)
+    th, dst = cv2.threshold(gray, 40, 255,
                                 cv2.THRESH_BINARY) #cv2.thresh_binary helps convert our image to BGR with respect to the threshold limits we gave/added
-
+    dst = cv2.dilate(dst, None, iterations=2)
     # We use this to smooth the image and make it cleaner while keeping the image sharp, it tells the computer
     # how many colors can be blurred together and how far the image should look for colors to blur
 
