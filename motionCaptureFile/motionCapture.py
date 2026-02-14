@@ -47,9 +47,8 @@ class MotionCapture:
 
         # Set default color to Green
         self.markerColor = (0, 255, 0)
-        self.thresholdValue = 30  # High default threshold value to ensure that white markers are precisely denoted
-        self.maxThresholdValue = 255
-
+        self.thresholdValue = 20  # This will allow us to pick up on movement that we want to capture while ignoring background nosie and unimportant motion
+        self.maxThresholdValue = 255 #We essentially will turn every color that is above pixel intesntiy level 20 to whote so that we can make contours out of it
         self.fpsCounter = 0
         #We are going to use this to compare each frame to the previous frame to see if there
         #has been any change in order to detect motion
@@ -163,13 +162,20 @@ class MotionCapture:
             grayScaleImage = self.getGrayScale(image)
             #We will blur the image a little in order to prevent the camera from picking up
             #subtle light flickering as motion
-            grayScaleImage = cv2.GaussianBlur(grayScaleImage, (21, 21), 0)
-            frameDelta = grayScaleImage
+
+            grayScaleImage = cv2.equalizeHist(grayScaleImage) #This will allow us to spread out the brightness 
+            #within the image so that objects within the image don't get overpowered by the bright light
+
+            grayScaleImage = cv2.GaussianBlur(grayScaleImage, (7, 7), 0)
+
+            backDropDetect = cv2.createBackgroundSubtractorMOG2(history=500, varThreshold=16, detectShadows=True) #Used to turn static imagery in our frames into a background (essentially just having the system analyze multiple frames to recognize which stuff to ignore as backgorund and which stuff to actually consider foreground or motion)
+            foreGroundMask = backDropDetect.apply(grayScaleImage) #This will allow us to single out the motion or detection of movement from static imagery
+            frameDelta = foreGroundMask
             #Checking to see if there is an array in the previous frame (If it has a frame loaded
             #in it already)
             if not isinstance(self.previousFrame, np.ndarray):
                 #We will make sure to store the initial frame within our previous frame placeholder
-                self.previousFrame = grayScaleImage
+                self.previousFrame = foreGroundMask #We will only store the foregrond in our frames array fopr comparison purposes
             else:
                 #Used to get an array of difference in pixel value from previous frame to current
                 #frame
@@ -183,8 +189,9 @@ class MotionCapture:
             #obejcts)
 
             #we are practically just spreading the white pixels or expanding them across the frame
-            #in order to get a bigger contour result
-            binaryThresholdImage = cv2.dilate(binaryThresholdImage, None, iterations=1.5)
+            #in order to get a bigger contour result (essentially just making the white blobs bigger so that we can get a better contour result
+            #or bigger picture rather than a small fragmented one)
+            binaryThresholdImage = cv2.dilate(binaryThresholdImage, None, iterations=1)
         except Exception as e:
             print(f"Error while dilating difference in frame: {e}")
 
@@ -214,7 +221,7 @@ class MotionCapture:
             for contour in contourList:
                 #We will only keep the contour values that are of the size of interest for us
                 #we don't want contour values for small and trivial things
-                if cv2.contourArea(contour) > 750:
+                if cv2.contourArea(contour) > 900:
                     try:
                         #We want only 20 markers at a time
                         if tempCount < 20:
@@ -300,8 +307,8 @@ class MotionCapture:
             #frame rate to use if yur camera can't support 120 frames per second
             cap.set(cv2.CAP_PROP_FPS, 120)
             #This will set the pixel size of each frame
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
             #Used to get the fps (frames per second) of the camera
             fps = cap.get(cv2.CAP_PROP_FPS)
         except:
@@ -354,6 +361,9 @@ class MotionCapture:
             # Disable the lightring for the camera (on d key pressed)
             if keyPress == ord('d'):
                 self.disableLightRing()
+
+            if keyPress == ord('q'):
+                cv2.destroyAllWindows() #Allows us to cancel the video feed by pressing q    
 
             # Decrease the threshold of whitelight capture (On Up Arrow Pressed)
             if keyPress == 84:
